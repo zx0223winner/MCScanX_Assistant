@@ -1,9 +1,9 @@
-# zx0223winner/HSDSnake: Documentation
+# zx0223winner/MCScanX_Assistant: Documentation
 
-The HSDSnake documentation is split into the following pages:
+The MCScanX_Assistant documentation is split into the following pages:
 
 - [Usage](Usage.md)
-  - An overview of how the pipeline works, how to run it, different results produced by the pipeline and how to interpret them
+  - An overview of how the MCScanX_Assistant works, how to run it, different results produced by the tool and how to interpret them
 
 - [Citations](Citations.md)
   - References which support your work.
