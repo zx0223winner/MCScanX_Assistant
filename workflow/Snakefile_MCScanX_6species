@@ -1,7 +1,7 @@
 # MCScanX_Assistant: MCScanX running and Ks distribution
-#snakemake --profile default all -s workflow/Snakefile_MCScanx_6species -n
+#snakemake --profile default all -s workflow/Snakefile_MCScanX_6species -n
 
-# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_MCScanx_6species --forceall --rulegraph | dot -Tpdf > dag_MCScanx_6species.pdf
+# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_MCScanX_6species --forceall --rulegraph | dot -Tpdf > dag_MCScanX_6species.pdf
 
 configfile: "config.yaml"
 
