@@ -1,0 +1,103 @@
+
+ncbi_assemblies:
+  - GCA_016771965.1
+  - GCA_019202805.1
+  - GCA_905216605.1
+  - GCA_911865555.2
+  - GCF_000001735.4
+  - GCF_000695525.1
+  #- GCF_003473485.1
+  #- GCF_000801105.2
+  #- GCF_020379485.1
+
+names:
+  - "Bcarinata" #
+  - "Asuecica" #
+  - "Aarenosa" #
+  - "Tarvense" #
+  - "Athaliana" #
+  - "Boleracea" #
+  - "Mtruncatula"
+ # - "Rsativus"
+ # - "Bnapus"
+  
+ks_test_name: 
+  - "6species"
+
+species_name:
+  - Athaliana
+ # - Mtruncatula
+
+ncbi_genomes:
+    Bcarinata:
+        ncbi_assembly: "data/ncbi_download/GCA_016771965.1.zip"
+        assembly_id: "GCA_016771965.1"      
+        feature_table: "data/ncbi_download/GCA_016771965.1_ASM1677196v1_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Bcarinata
+
+    Asuecica:
+        ncbi_assembly: "data/ncbi_download/GCA_019202805.1.zip"
+        assembly_id: "GCA_019202805.1"
+        feature_table: "data/ncbi_download/GCA_019202805.1_ASM1920280v1_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Asuecica
+     
+
+    Aarenosa:
+        ncbi_assembly: "data/ncbi_download/GCA_905216605.1.zip"
+        assembly_id: "GCA_905216605.1"
+        feature_table: "data/ncbi_download/GCA_905216605.1_AARE701a_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Aarenosa
+
+
+    Tarvense:
+        ncbi_assembly: "data/ncbi_download/GCA_911865555.2.zip"
+        assembly_id: "GCA_911865555.2"
+        feature_table: "data/ncbi_download/GCA_911865555.2_T_arvense_v2_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Tarvense
+
+
+    Athaliana:
+        ncbi_assembly: "data/ncbi_download/GCF_000001735.4.zip"
+        assembly_id: "GCF_000001735.4"
+        feature_table: "data/ncbi_download/GCF_000001735.4_TAIR10.1_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Athaliana
+
+                    
+    Boleracea:
+        ncbi_assembly: "data/ncbi_download/GCF_000695525.1.zip"
+        assembly_id: "GCF_000695525.1"
+        feature_table: "data/ncbi_download/GCF_000695525.1_BOL_feature_table.txt.gz"        
+        outgroups: "Arabidopsis_thaliana"
+        species: Boleracea
+
+
+    Rsativus:
+        ncbi_assembly: "data/ncbi_download/GCF_000801105.2.zip"
+        assembly_id: "GCF_000801105.2"
+        feature_table: "data/ncbi_download/GCF_000801105.2_ASM80110v3_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Rsativus
+
+
+    Bnapus:
+        ncbi_assembly: "data/ncbi_download/GCF_020379485.1.zip"
+        assembly_id: "GCF_020379485.1"
+        feature_table: "data/ncbi_download/GCF_020379485.1_Da-Ae_feature_table.txt.gz"
+        outgroups: "Arabidopsis_thaliana"
+        species: Bnapus
+    
+    # Mtruncatula:
+    #     ncbi_assembly: "data/ncbi_download/GCF_003473485.1.zip"
+    #     assembly_id: "GCF_003473485.1"      
+    #     feature_table: "data/ncbi_download/GCF_003473485.1_MtrunA17r5.0-ANR_feature_table.txt.gz"
+    #     outgroups: "Arabidopsis_thaliana"
+    #     species: Mtruncatula  
+
+MCScanX_protocol:
+ - "/scripts/MCScanX_protocol"
+

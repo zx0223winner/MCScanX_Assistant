@@ -1,0 +1,385 @@
+# MCScanX_Assistant: preprocessing the input files
+#snakemake --profile default all -s workflow/Snakefile_input_preparing -n
+
+# Once this is finished,run the next Snakemake file
+#snakemake --profile default all -s workflow/Snakefile_ks_distribution_plot -n
+
+#or the 6 species all together 
+#snakemake --profile default all -s workflow/Snakefile_MCScanx_6species -n
+
+# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_input_preparing --forceall --rulegraph | dot -Tpdf > dag_input_preparing.pdf
+
+configfile: "config.yaml"
+
+import itertools
+
+rule all:
+	input:
+########### MCScanX_protocol input file pre-processing (6 species) ##############
+	#download ncbi files
+	#	expand("data/ncbi_download/{ncbi_assembly}.zip",
+	#		ncbi_assembly = config['ncbi_assemblies']),
+	# renaming the ncbi files
+		expand("data/ncbi/{name}/{name}_genomic.gff",
+			name = config['names']),
+		expand("data/ncbi/{name}/{name}_protein.faa",
+			name = config['names']),
+		expand("data/ncbi/{name}/{name}_cds_from_genomic.fna",
+			name = config['names']),
+		expand("data/intermediateData/{name}/{name}.cds",
+			name = config['names']),
+		expand("data/ncbi/{name}_primary/{name}_protein.list",
+			name = config['names']),
+		expand("data/ncbi/{name}_primary/{name}_protein.faa",
+			name = config['names']),
+	# prepare the input gff for the MCScanX
+		expand("data/intermediateData/{name}/{name}.gff",
+			name = config['names']),
+	
+	# Other option to yield the MCScanX gff: 
+		expand("data/intermediateData/{name}/{name}.gff-option_one",
+			name = config['names']),
+	
+	# Other option to yield the MCScanX gff: 
+		expand("data/intermediateData/{name}/{name}.gff-option_two",
+			name = config['names']),
+	
+	# prepare the input blast db for the mcscanx			
+		expand("data/ncbiDB/{name}.dmnd",
+			name = config['names']),
+
+	# prepare the input blast for the mcscanx
+		expand("data/intermediateData/{name}/{name}.blast",
+			name = config['names']),
+
+	# Iterate the all-vs-all blastp on all genome pairs (6^2=36 times)
+		[ f"data/intermediateData/{s[0]}-{s[1]}_mcscanx/{s[0]}-{s[1]}.blast" for s in itertools.combinations(config['ncbi_genomes'].keys(), 2) ],
+	
+	
+	
+	
+			
+
+# Here is a convenient way to download the standard input files from NCBI from the rule below, users can also manually downlaoded them.
+#rule ncbi_download:
+#	input:
+#		"data/"
+#	output:
+#		"data/ncbi_download/{ncbi_assembly}.zip"
+#	threads:
+#		1
+#	resources:
+#		mem = 2
+#	params:
+#		dir = "data/ncbi_download/",
+#		file = "{ncbi_assembly}.zip",
+#		link = "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/accession/{ncbi_assembly}/download?include_annotation_type=GENOME_FASTA,GENOME_GFF,RNA_FASTA,CDS_FASTA,PROT_FASTA,SEQUENCE_REPORT&filename={ncbi_assembly}.zip"
+#	log:
+#		out = "log/ncbi_download/{ncbi_assembly}.out",
+#		err = "log/ncbi_download/{ncbi_assembly}.err"
+#	shell:"""
+#mkdir -p {params.dir};\
+#curl -OJX \
+#GET "{params.link}"; \
+#mv {params.file} {params.dir} \
+#2> {log.out} \
+#3> {log.err}
+#"""
+
+#lambda wc: config['ncbi_genomes'][wc.name]['ncbi_assembly']
+
+
+rule ncbi_assembly:
+	input:
+		expand("data/ncbi_download/{assembly_id}.zip",assembly_id = config['ncbi_assemblies']),
+		feature_table = lambda wc: config['ncbi_genomes'][wc.name]['feature_table']
+	output:
+		"data/ncbi/{name}/{name}_genomic.gff",
+		"data/ncbi/{name}/{name}_protein.faa",
+		"data/ncbi/{name}/{name}_cds_from_genomic.fna",
+		"data/ncbi/{name}/{name}_feature_table.txt"
+	threads:
+		1
+	resources:
+		mem = 2
+	params:
+		dir1 = "data/ncbi_download/",
+		dir2 = "data/ncbi/",
+		file = "data/ncbi/{name}/{name}_feature_table.txt.gz",
+		species_name = "{name}",
+		assembly_id = lambda wc: config['ncbi_genomes'][wc.name]['assembly_id']
+	log:
+		out = "log/ncbi_assembly/{name}.out",
+		err = "log/ncbi_assembly/{name}.err"
+	shell:"""
+mkdir -p {params.dir2}{params.species_name}; \
+unzip {params.dir1}{params.assembly_id}.zip -d {params.dir1}{params.species_name}; \
+cp {input.feature_table} {params.file}; \
+gzip -d {params.file}; \
+sleep 5s; \
+cp {params.dir1}{params.species_name}/ncbi_dataset/data/{params.assembly_id}/cds_from_genomic.fna {params.dir2}{params.species_name}/{params.species_name}_cds_from_genomic.fna; \
+cp {params.dir1}{params.species_name}/ncbi_dataset/data/{params.assembly_id}/genomic.gff {params.dir2}{params.species_name}/{params.species_name}_genomic.gff; \
+cp {params.dir1}{params.species_name}/ncbi_dataset/data/{params.assembly_id}/protein.faa {params.dir2}{params.species_name}/{params.species_name}_protein.faa; \
+rm -r {params.dir1}{params.species_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+
+# Since the input.gff file for mcscanx is nether gff3 nor bed file format, for simplity, call it MCScanX_gff file
+# If the mkGFF3.pl does not work on your gff3 file due to the format of naming, there are other ways to generate the MCScanX_gff, check the next rules and substitue the MCScanX_gff for which works
+rule generate_MCScanX_gff_inputs:
+	input:
+		"data/ncbi/{name}/{name}_genomic.gff"
+	output:
+		"data/intermediateData/{name}/{name}.gff"
+	threads:
+		1
+	resources:
+		mem = 2
+	params:
+		dir1 = "data/intermediateData",
+		dir2 = "scripts/MCScanX_protocol",
+		dir3 = "data",
+		species_name = "{name}"
+	log: 
+		out = "log/generate_MCScanX_gff_inputs/{name}.out",
+		err = "log/generate_MCScanX_gff_inputs/{name}.err"
+	shell:"""
+	mkdir -p {params.dir1}; \
+	perl {params.dir2}/mkGFF3.pl {params.dir3} {params.species_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+# MCScanX_gff option ONE
+# Convert gff to bed for easier parsing, this is an option for other gff3 files 
+rule gff_to_MCScanX_gff:
+	input:
+		gff = "data/ncbi/{name}/{name}_genomic.gff"
+	output:
+		fakegff = "data/intermediateData/{name}/{name}.gff-option_one"
+	log:
+		err = "log/gff_to_MCScanX_gff/{name}.err"
+	conda:
+		"envs/bedops.yaml"
+	threads:
+		1
+	resources:
+		mem = 4,
+		time = "0:10:0"
+	shell: """
+cat {input.gff} \
+| grep -v '^#' \
+| awk '$3 == "gene"' \
+| gff2bed \
+| awk 'BEGIN {{OFS="\t"}} {{print $1,$4,$2,$3}}' \
+> {output.fakegff} \
+2> {log.err}
+"""
+
+# MCScanX_gff option TWO
+#note:"XX_feature_table.txt" is a backup option to create MCScanX_gff
+rule featuretable_to_MCScanX_gff:
+    input: 
+        feature_table = "data/ncbi/{name}/{name}_feature_table.txt"
+    output:
+        MCScanX_gff = "data/intermediateData/{name}/{name}.gff-option_two"
+    log:
+        err = "log/featuretable_to_MCScanX_gff/{name}.err"
+    threads:
+        1
+    resources:
+        mem = 4,
+        time = "0:10:0"
+    shell: """
+sed 1d {input.feature_table} \
+|grep 'mRNA' \
+|awk -F'\t' '$13!=""{{print $7"\t"$13"\t"$8"\t"$9}}' \
+> {output.MCScanX_gff} \
+2> {log.err}
+"""
+
+rule make_cds:
+	input:
+		"data/ncbi/{name}/{name}_genomic.gff"
+	output:
+		"data/intermediateData/{name}/{name}.cds"
+	threads:
+		1
+	resources:
+		mem = 2
+	params:
+		dir1 = "data/intermediateData",
+		dir2 = "scripts/MCScanX_protocol",
+		dir3 = "data",
+		species_name = "{name}"
+	log: 
+		out = "log/make_cds/{name}.out",
+		err = "log/make_cds/{name}.err"
+	shell:"""
+	perl {params.dir2}/mkCD.pl {params.dir3} {params.species_name} \
+> {log.out} \
+2> {log.err}
+"""
+#Due to alternative splicing, the mRNA isoform/transcript can have different length which encoding the protein product with different ID but from same gene.
+#So here we prepare only the longest protein for each gene (i.e., the primary transcript (mRNA) encoding for the protein) to avoid detectinng duplicate genes from themselves.
+rule isoform2one:
+	input:
+		feature_table = "data/ncbi/{name}/{name}_feature_table.txt",
+		protein = "data/ncbi/{name}/{name}_protein.faa"
+	output:
+		"data/ncbi/{name}_primary/{name}_protein.list"
+	threads:
+		1
+	resources:
+		mem = 2
+	params:
+		dir1 = "scripts",
+		file = "data/ncbi/{name}/{name}_short_name.faa"
+	log: 
+		out = "log/isoform2one/{name}.out",
+		err = "log/isoform2one/{name}.err"
+	shell:"""
+	python3 {params.dir1}/isoform2one.py {input.feature_table} {output}; \
+	awk '{{print $1}}' {input.protein} \
+> {params.file} \
+2> {log.out} \
+3> {log.err}
+"""
+
+#note: there are rare cases for NCBI without feature to download 
+#(e.g., https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_feature_table.txt.gz). 
+
+#If that is the issue, users can optionally prepare primary protein gene list -  "XX_protein.list" from NCBI website manually 
+#for example, the proteins column for Chlamydomonas reinhardtii: https://www.ncbi.nlm.nih.gov/datasets/gene/GCF_000002595.2/?gene_type=protein-coding
+
+rule prepare_primary_protein:
+	input:
+		primary_list = "data/ncbi/{name}_primary/{name}_protein.list"
+	output:
+		primary_protein = "data/ncbi/{name}_primary/{name}_protein.faa",
+	threads:
+		1
+	resources:
+		mem = 2
+	params:
+		dir = "scripts",
+		file = "data/ncbi/{name}/{name}_short_name.faa"
+	log: 
+		out = "log/prepare_primary_protein/{name}.out",
+		err = "log/prepare_primary_protein/{name}.err"
+	shell:"""
+python3 {params.dir}/index_header_to_seq.py \
+	{params.file} \
+	{input.primary_list} \
+	{output.primary_protein} \
+> {log.out} \
+2> {log.err}
+"""
+
+
+# Waiting at most 60 seconds for missing files
+rule diamond_db_mcscanx:
+	input:
+		"data/ncbi/{name}_primary/{name}_protein.faa"
+	output:
+		"data/ncbiDB/{name}.dmnd"
+	threads:
+		1
+	resources:
+		mem = 2
+	params:
+		dir1 = "data/ncbiDB",
+		db_name_dir = "data/ncbiDB/{name}",
+		protein = "data/ncbi/{name}_primary/{name}_protein.faa"
+	conda: 
+		"envs/diamond.yaml"
+	log: 
+		out = "log/diamond_db_mcscanx/{name}.out",
+		err = "log/diamond_db_mcscanx/{name}.err"
+	shell:"""
+	sleep 10s; \
+	mkdir -p {params.dir1}; \
+	diamond makedb \
+		--in {params.protein} \
+		-d {params.db_name_dir} \
+> {log.out} \
+2> {log.err}
+"""
+
+# note: --max-target-seqs parameter will impact how many candidate duplicates will be detected
+rule diamond_mcscanx:
+	input:
+		protein = "data/ncbi/{name}_primary/{name}_protein.faa",
+		database = "data/ncbiDB/{name}.dmnd"
+	output:
+		"data/intermediateData/{name}/{name}.blast"
+	threads:
+		4
+	resources:
+		mem = 20
+	params:
+		db_name_dir = "data/ncbiDB/{name}",
+		db_title = "{name}",
+		protein = "data/ncbi/{name}_primary/{name}_protein.faa"
+	conda: 
+		"envs/diamond.yaml"	
+	log: 
+		out = "log/diamond_mcscanx/{name}.out",
+		err = "log/diamond_mcscanx/{name}.err"
+	shell:"""
+		diamond blastp \
+		-d {params.db_name_dir} \
+		-q {params.protein} \
+		-o {output} \
+		-e 1e-10 \
+		-f 6 \
+		-p {threads} \
+		--sensitive \
+		--max-target-seqs 5 \
+> {log.out} \
+2> {log.err}	
+"""
+
+
+rule diamond_mcscanx_blast_all_vs_all:
+	input:
+		protein_a = lambda wc: "data/ncbi/"+ config['ncbi_genomes'][wc.name_a]['species'] +"_primary/"+ config['ncbi_genomes'][wc.name_a]['species'] +"_protein.faa",
+		protein_b = lambda wc: "data/ncbi/"+ config['ncbi_genomes'][wc.name_b]['species'] +"_primary/"+ config['ncbi_genomes'][wc.name_b]['species'] +"_protein.faa",
+		database_a = lambda wc: "data/ncbiDB/" + config['ncbi_genomes'][wc.name_a]['species'] + ".dmnd",
+		database_b = lambda wc: "data/ncbiDB/" + config['ncbi_genomes'][wc.name_b]['species'] + ".dmnd"
+	output:
+		"data/intermediateData/{name_a}-{name_b}_mcscanx/{name_a}-{name_b}.blast"
+	threads:
+		4
+	resources:
+		mem = 20
+	params:
+		dir = "data/intermediateData/{name_a}-{name_b}_mcscanx/",
+		db_name_dir = "data/ncbiDB/{name_b}",
+		db_title = "{name_b}",
+		protein = "data/ncbi/{name_a}_primary/{name_a}_protein.faa",
+		out_name = "data/intermediateData/{name_a}-{name_b}_mcscanx/{name_a}-{name_b}.blast"
+	conda:
+		"envs/diamond.yaml"
+	log:
+		out = "log/mcscanx_diamond/{name_a}-{name_b}.log",
+		err = "log/mcscanx_diamond/{name_a}-{name_b}.err"
+	shell:"""
+		mkdir -p {params.dir}; \
+		diamond blastp \
+		-d {params.db_name_dir} \
+		-q {params.protein} \
+		-o {params.out_name} \
+		-e 1e-10 \
+		-f 6 \
+		-p {threads} \
+		--sensitive \
+		--max-target-seqs 5 \
+> {log.out} \
+2> {log.err}	
+"""
+
+
+

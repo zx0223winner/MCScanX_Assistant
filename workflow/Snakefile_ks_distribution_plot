@@ -1,0 +1,235 @@
+# MCScanX_Assistant: Ks distribution for individual species
+#snakemake --profile default all -s workflow/Snakefile_ks_distribution_plot -n
+
+#or the 6 species all together 
+#snakemake --profile default all -s workflow/Snakefile_MCScanx_6species -n
+
+
+# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_ks_distribution_plot --forceall --rulegraph | dot -Tpdf > dag_ks_distribution_plot.pdf
+
+configfile: "config.yaml"
+
+
+rule all:
+	input:
+########### density Ks distribution (individual species) ##############
+	# run the MCScanX script
+		expand("scripts/MCScanX/{species_name}/{species_name}.collinearity",
+			species_name = config['species_name']),	
+	
+	#kaks
+		expand("data/mcscanx/{species_name}/{species_name}.kaks", 
+			species_name = config['species_name']),	
+		expand("data/mcscanx/{species_name}_kaks/{species_name}.kaks",
+			species_name = config['species_name']),
+		expand("data/mcscanx/{species_name}_kaks/{species_name}.collinearity",
+			species_name = config['species_name']),
+		expand("data/mcscanx/{species_name}_kaks/{species_name}.collinearity.kaks",
+			species_name = config['species_name']),
+		expand("data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.info",
+			species_name = config['species_name']),
+		expand("data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.distri.pdf",
+			species_name = config['species_name']),
+		expand("data/mcscanx/{species_name}_kaks/{species_name}.synteny.density.ks.distri.pdf",
+			species_name = config['species_name'])	
+
+
+#Run the mcscanx
+#If mcscanx has no results, Solution is to put .blast and .gff file inside MCScanX folder without creating a separate folder.
+
+rule mcscanx:
+	input:
+		gff = "data/intermediateData/{species_name}/{species_name}.gff",
+		blast = "data/intermediateData/{species_name}/{species_name}.blast",
+		cds = "data/intermediateData/{species_name}/{species_name}.cds"
+	output:
+		collinearity = "scripts/MCScanX/{species_name}/{species_name}.collinearity"
+	threads:
+		10
+	resources:
+		mem = 25,
+		time = "0:30:0"
+	conda:
+		"envs/mcscanx.yaml"
+	params:
+		dir = "data/intermediateData/{species_name}",
+		dir1 = "scripts/MCScanX/{species_name}",
+		dir2 = "scripts/MCScanX",
+		dir_name = config['species_name']
+	log: 
+		out = "log/mcscanx/{species_name}.out",
+		err = "log/mcscanx/{species_name}.err"
+	shell:"""
+export PATH=$PATH:{params.dir2}; \
+chmod +x {params.dir2}/MCScanX; \
+cp -r {params.dir} {params.dir2}; \
+./{params.dir2}/MCScanX {params.dir1}/{params.dir_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+
+rule ka_and_ks_collinearity:
+	input:
+		collinearity = "scripts/MCScanX/{species_name}/{species_name}.collinearity",
+		cds = "data/intermediateData/{species_name}/{species_name}.cds"
+	output:
+		"data/mcscanx/{species_name}/{species_name}.kaks"
+	threads:
+		1
+	resources:
+		mem = 2,
+		time = "0:30:0"
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir = "scripts/MCScanX_protocol"
+	log: 
+		out = "log/ka_and_ks_collinearity/{species_name}.out",
+		err = "log/ka_and_ks_collinearity/{species_name}.err"
+	shell:"""
+	perl {params.dir}/add_ka_and_ks_to_collinearity_Yn00.pl \
+	-i {input.collinearity} \
+	-d {input.cds} \
+	-o {output} \
+> {log.out} \
+2> {log.err}
+"""
+
+# due to the perl script: add_ka_and_ks_to_collinearity_Yn00.pl, which may has some temp files left in main dir, which can be safefly removed 
+#	rm *.aln; \
+#	rm *.cds; \
+#	rm *.dnd; \
+#	rm *.pro; \
+
+rule adding_Ka_Ks_into_collinearity:
+	input:
+		col = "scripts/MCScanX/{species_name}/{species_name}.collinearity",
+		kaks = "data/mcscanx/{species_name}/{species_name}.kaks"
+	output:
+		"data/mcscanx/{species_name}_kaks/{species_name}.kaks",
+		"data/mcscanx/{species_name}_kaks/{species_name}.collinearity"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir = "data/mcscanx/{species_name}_kaks",
+		species_name = "{species_name}"
+	log: 
+		out = "log/adding_Ka_Ks_into_collinearity/{species_name}.out",
+		err = "log/adding_Ka_Ks_into_collinearity/{species_name}.err"
+	shell:"""
+	mkdir -p {params.dir};\
+	cp {input.col} {params.dir}/{params.species_name}.collinearity;\
+	awk -F'\t' '{{print $2"\t"$3"\t"$5"\t"$6"\t"$7"\t"$4}}' {input.kaks} \
+|grep -v -e '^[[:space:]]*$' \
+> {output[0]}
+2> {log.out} \
+3> {log.err}
+"""
+
+rule adding_Ka_Ks_into_collinearity2:
+	input:
+		col = "data/mcscanx/{species_name}_kaks/{species_name}.collinearity",
+		kaks = "data/mcscanx/{species_name}_kaks/{species_name}.kaks"
+	output:
+		"data/mcscanx/{species_name}_kaks/{species_name}.collinearity.kaks"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir1 = "scripts/identify_Ks_peaks_by_fitting_GMM",
+		dir2 = "data/mcscanx/{species_name}_kaks",
+		species_name = "{species_name}"
+	log: 
+		out = "log/adding_Ka_Ks_into_collinearity2/{species_name}.out",
+		err = "log/adding_Ka_Ks_into_collinearity2/{species_name}.err"
+	shell:"""
+	perl {params.dir1}/add_ka_ks_to_collinearity_file.pl {params.dir2}/{params.species_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+rule Calculating_Ks_syntenic_block:
+	input:
+		"data/mcscanx/{species_name}_kaks/{species_name}.collinearity.kaks"
+	output:
+		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.info"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir1 = "scripts/identify_Ks_peaks_by_fitting_GMM",
+		dir2 = "data/mcscanx/{species_name}_kaks",
+		species_name = "{species_name}"
+	log: 
+		out = "log/Calculating_Ks_syntenic_block/{species_name}.out",
+		err = "log/Calculating_Ks_syntenic_block/{species_name}.err"
+	shell:"""
+	perl {params.dir1}/compute_ks_for_synteny_blocks.pl {input}; \
+	cp {params.species_name}.synteny.blocks.ks.info {output}; \
+	rm {params.species_name}.synteny.blocks.ks.info \
+> {log.out} \
+2> {log.err}
+"""
+
+
+#The parameter Components indicates the number of the mixture components, which represent the number of Ks peak. 
+rule Estimating_Ks_peaks:
+	input:
+		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.info"
+	output:
+		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.distri.pdf"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/biopython.yaml"
+	params:
+		dir1 = "scripts/identify_Ks_peaks_by_fitting_GMM",
+		dir2 = "data/mcscanx/{species_name}_kaks",
+		species_name = "{species_name}",
+		components =2
+	log: 
+		out = "log/Estimating_Ks_peaks/{species_name}.out",
+		err = "log/Estimating_Ks_peaks/{species_name}.err"
+	shell:"""
+	python {params.dir1}/plot_syntenic_blocks_ks_distri.py {input} {params.components} {params.dir2}/{params.species_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+
+rule Ks_density_plot:
+	input:
+		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.info"
+	output:
+		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.density.ks.distri.pdf"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/biopython.yaml"
+	params:
+		dir1 = "scripts",
+		dir2 = "data/mcscanx/{species_name}_kaks",
+		species_name = "{species_name}"
+	log: 
+		out = "log/Ks_density_plot/{species_name}.out",
+		err = "log/Ks_density_plot/{species_name}.err"
+	shell:"""
+	python {params.dir1}/plot_density_ks_distri.py {input} {params.dir2}/{params.species_name}.synteny.density.ks.distri.pdf {params.species_name}\
+> {log.out} \
+2> {log.err}
+"""

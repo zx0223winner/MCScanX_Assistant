@@ -1,0 +1,275 @@
+# MCScanX_Assistant: MCScanX running and Ks distribution
+#snakemake --profile default all -s workflow/Snakefile_MCScanx_6species -n
+
+# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_MCScanx_6species --forceall --rulegraph | dot -Tpdf > dag_MCScanx_6species.pdf
+
+configfile: "config.yaml"
+
+
+rule all:
+	input:
+########### MCScanX_protocol MCScanX running and Ks distribution (6 species) ##############
+	# run the MCScanX script
+		expand("data/mcscanx/{ks_test_name}/list.txt",
+			ks_test_name = config['ks_test_name']),
+		expand("data/mcscanx/{ks_test_name}/{ks_test_name}.gff",
+			ks_test_name = config['ks_test_name']),
+		expand("data/mcscanx/{ks_test_name}/{ks_test_name}.blast",
+			ks_test_name = config['ks_test_name']),
+		expand("data/mcscanx/{ks_test_name}/{ks_test_name}.cds",
+			ks_test_name = config['ks_test_name']),
+		expand("scripts/MCScanX/{ks_test_name}/{ks_test_name}.collinearity",
+			ks_test_name = config['ks_test_name']),	
+	
+	#kaks
+		expand("data/mcscanx/{ks_test_name}/{ks_test_name}.kaks", 
+			ks_test_name = config['ks_test_name']),	
+		expand("data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.kaks",
+			ks_test_name = config['ks_test_name']),
+		expand("data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.collinearity",
+			ks_test_name = config['ks_test_name']),
+		expand("data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.collinearity.kaks",
+			ks_test_name = config['ks_test_name']),
+		expand("data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.synteny.blocks.ks.info",
+			ks_test_name = config['ks_test_name']),
+		# expand("data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.synteny.blocks.ks.distri.pdf",
+		# 	ks_test_name = config['ks_test_name'])
+			
+
+
+rule species_mcscanx_list:
+	input:
+		"data/intermediateData"
+	output:
+		"data/mcscanx/{ks_test_name}/list.txt"
+	threads:
+		4
+	resources:
+		mem = 20
+	params:
+		dir = "data/intermediateData",
+		dir1 = "data/mcscanx/{ks_test_name}",
+		dir_name = config['ks_test_name']
+	conda: 
+		"envs/diamond.yaml"	
+	log: 
+		out = "log/species_mcscanx/{ks_test_name}.out",
+		err = "log/species_mcscanx/{ks_test_name}.err"
+	shell:"""
+mkdir -p {params.dir1}; \
+ls -l {params.dir}|awk '{{print $9}}'| tee {params.dir1}/list.txt; \
+2> {log.out} \
+3> {log.err}	
+"""
+
+rule species_mcscanx_file:
+	input:
+		"data/mcscanx/{ks_test_name}/list.txt"
+	output:
+		gff = "data/mcscanx/{ks_test_name}/{ks_test_name}.gff",
+		blast = "data/mcscanx/{ks_test_name}/{ks_test_name}.blast",
+		cds = "data/mcscanx/{ks_test_name}/{ks_test_name}.cds"
+	threads:
+		4
+	resources:
+		mem = 20
+	params:
+		dir = "data/intermediateData",
+		dir1 = "data/mcscanx/{ks_test_name}",
+		dir_name = config['ks_test_name']
+	conda: 
+		"envs/diamond.yaml"	
+	log: 
+		out = "log/species_mcscanx_file/{ks_test_name}.out",
+		err = "log/species_mcscanx_file/{ks_test_name}.err"
+	shell:"""
+while read line; do \
+cp {params.dir}/$line/*.gff {params.dir1}||true; \
+cp {params.dir}/$line/*.blast {params.dir1}||true; \
+cp {params.dir}/$line/*.cds {params.dir1}||true; \
+done < {input}; \
+cat {params.dir1}/*.gff|tee {output.gff}; \
+cat {params.dir1}/*.blast|tee {output.blast}; \
+cat {params.dir1}/*.cds|tee {output.cds}; \
+2> {log.out} \
+3> {log.err}	
+"""
+
+# ignore the cp error with ||true, especially those empty folders
+
+#Run the mcscanx 
+rule mcscanx:
+	input:
+		gff = "data/mcscanx/{ks_test_name}/{ks_test_name}.gff",
+		blast = "data/mcscanx/{ks_test_name}/{ks_test_name}.blast",
+		cds = "data/mcscanx/{ks_test_name}/{ks_test_name}.cds"
+	output:
+		collinearity = "scripts/MCScanX/{ks_test_name}/{ks_test_name}.collinearity"
+	threads:
+		10
+	resources:
+		mem = 25,
+		time = "0:30:0"
+	conda:
+		"envs/mcscanx.yaml"
+	params:
+		dir = "data/mcscanx/{ks_test_name}",
+		dir1 = "scripts/MCScanX/{ks_test_name}",
+		dir2 = "scripts/MCScanX",
+		dir_name = config['ks_test_name']
+	log: 
+		out = "log/mcscanx/{ks_test_name}.out",
+		err = "log/mcscanx/{ks_test_name}.err"
+	shell:"""
+export PATH=$PATH:{params.dir2}; \
+chmod +x {params.dir2}/MCScanX; \
+cp -r {params.dir} {params.dir2}; \
+./{params.dir2}/MCScanX {params.dir1}/{params.dir_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+#If mcscanx has no results, Solution is to put .blast and .gff file inside MCScanX folder without creating a separate folder.
+
+
+rule ka_and_ks_collinearity:
+	input:
+		collinearity = "scripts/MCScanX/{ks_test_name}/{ks_test_name}.collinearity",
+		cds = "data/mcscanx/{ks_test_name}/{ks_test_name}.cds"
+	output:
+		"data/mcscanx/{ks_test_name}/{ks_test_name}.kaks"
+	threads:
+		1
+	resources:
+		mem = 2,
+		time = "12:30:0"
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir = "scripts/MCScanX_protocol"
+	log: 
+		out = "log/ka_and_ks_collinearity/{ks_test_name}.out",
+		err = "log/ka_and_ks_collinearity/{ks_test_name}.err"
+	shell:"""
+	perl {params.dir}/add_ka_and_ks_to_collinearity_Yn00.pl \
+	-i {input.collinearity} \
+	-d {input.cds} \
+	-o {output} \
+> {log.out} \
+2> {log.err}
+"""
+
+# due to the perl script: add_ka_and_ks_to_collinearity_Yn00.pl, which may has some temp files left in main dir, which can be safefly removed 
+#	rm *.aln; \
+#	rm *.cds; \
+#	rm *.dnd; \
+#	rm *.pro; \
+
+rule adding_Ka_Ks_into_collinearity:
+	input:
+		col = "scripts/MCScanX/{ks_test_name}/{ks_test_name}.collinearity",
+		kaks = "data/mcscanx/{ks_test_name}/{ks_test_name}.kaks"
+	output:
+		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.kaks",
+		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.collinearity"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir = "data/mcscanx/{ks_test_name}_kaks",
+		species_name = "{ks_test_name}"
+	log: 
+		out = "log/adding_Ka_Ks_into_collinearity/{ks_test_name}.out",
+		err = "log/adding_Ka_Ks_into_collinearity/{ks_test_name}.err"
+	shell:"""
+	mkdir -p {params.dir};\
+	cp {input.col} {params.dir}/{params.species_name}.collinearity;\
+	awk -F'\t' '{{print $2"\t"$3"\t"$5"\t"$6"\t"$7"\t"$4}}' {input.kaks} \
+|grep -v -e '^[[:space:]]*$' \
+> {output[0]}
+2> {log.out} \
+3> {log.err}
+"""
+
+rule adding_Ka_Ks_into_collinearity2:
+	input:
+		col = "data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.collinearity",
+		kaks = "data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.kaks"
+	output:
+		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.collinearity.kaks"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir1 = "scripts/identify_Ks_peaks_by_fitting_GMM",
+		dir2 = "data/mcscanx/{ks_test_name}_kaks",
+		species_name = "{ks_test_name}"
+	log: 
+		out = "log/adding_Ka_Ks_into_collinearity2/{ks_test_name}.out",
+		err = "log/adding_Ka_Ks_into_collinearity2/{ks_test_name}.err"
+	shell:"""
+	perl {params.dir1}/add_ka_ks_to_collinearity_file.pl {params.dir2}/{params.species_name} \
+> {log.out} \
+2> {log.err}
+"""
+
+rule Calculating_Ks_syntenic_block:
+	input:
+		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.collinearity.kaks"
+	output:
+		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.synteny.blocks.ks.info"
+	threads:
+		1
+	resources:
+		mem = 2
+	conda:
+		"envs/bioperl.yaml"
+	params:
+		dir1 = "scripts/identify_Ks_peaks_by_fitting_GMM",
+		dir2 = "data/mcscanx/{ks_test_name}_kaks",
+		species_name = "{ks_test_name}"
+	log: 
+		out = "log/Calculating_Ks_syntenic_block/{ks_test_name}.out",
+		err = "log/Calculating_Ks_syntenic_block/{ks_test_name}.err"
+	shell:"""
+	perl {params.dir1}/compute_ks_for_synteny_blocks.pl {input}; \
+	cp {params.species_name}.synteny.blocks.ks.info {output}; \
+	rm {params.species_name}.synteny.blocks.ks.info \
+> {log.out} \
+2> {log.err}
+"""
+
+
+#The parameter Components indicates the number of the mixture components, which represent the number of Ks peak. 
+# rule Estimating_Ks_peaks:
+# 	input:
+# 		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.synteny.blocks.ks.info"
+# 	output:
+# 		"data/mcscanx/{ks_test_name}_kaks/{ks_test_name}.synteny.blocks.ks.distri.pdf"
+# 	threads:
+# 		1
+# 	resources:
+# 		mem = 2
+# 	conda:
+# 		"envs/biopython.yaml"
+# 	params:
+# 		dir1 = "scripts/identify_Ks_peaks_by_fitting_GMM",
+# 		dir2 = "data/mcscanx/{ks_test_name}_kaks",
+# 		species_name = "{ks_test_name}",
+# 		components =2
+# 	log: 
+# 		out = "log/Estimating_Ks_peaks/{ks_test_name}.out",
+# 		err = "log/Estimating_Ks_peaks/{ks_test_name}.err"
+# 	shell:"""
+# 	python {params.dir1}/plot_syntenic_blocks_ks_distri.py {input} {params.components} {params.dir2}/{params.species_name} \
+# > {log.out} \
+# 2> {log.err}
+# """
+
+
