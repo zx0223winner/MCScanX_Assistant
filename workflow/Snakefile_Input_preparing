@@ -1,13 +1,13 @@
 # MCScanX_Assistant: preprocessing the input files 
-#snakemake --profile default all -s workflow/Snakefile_input_preparing -n
+#snakemake --profile default all -s workflow/Snakefile_Input_preparing -n
 
 # Once this is finished,run the next Snakemake file
-#snakemake --profile default all -s workflow/Snakefile_ks_distribution_plot -n
+#snakemake --profile default all -s workflow/Snakefile_Ks_distribution_plot -n
 
 #or the 6 species all together 
-#snakemake --profile default all -s workflow/Snakefile_MCScanx_6species -n
+#snakemake --profile default all -s workflow/Snakefile_MCScanX_6species -n
 
-# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_input_preparing --forceall --rulegraph | dot -Tpdf > dag_input_preparing.pdf
+# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_Input_preparing --forceall --rulegraph | dot -Tpdf > dag_input_preparing.pdf
 
 configfile: "config.yaml"
 
