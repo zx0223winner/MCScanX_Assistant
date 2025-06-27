@@ -7,3 +7,6 @@ The MCScanX_Assistant documentation is split into the following pages:
 
 - [Citations](Citations.md)
   - References which support your work.
+
+- [Folder structure](tree.md)
+  - eailer to locate the folder and content
