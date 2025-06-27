@@ -1,11 +1,11 @@
 # MCScanX_Assistant: Ks distribution for individual species
-#snakemake --profile default all -s workflow/Snakefile_ks_distribution_plot -n
+#snakemake --profile default all -s workflow/Snakefile_Ks_distribution_plot -n
 
 #or the 6 species all together 
-#snakemake --profile default all -s workflow/Snakefile_MCScanx_6species -n
+#snakemake --profile default all -s workflow/Snakefile_MCScanX_6species -n
 
 
-# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_ks_distribution_plot --forceall --rulegraph | dot -Tpdf > dag_ks_distribution_plot.pdf
+# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_Ks_distribution_plot --forceall --rulegraph | dot -Tpdf > dag_ks_distribution_plot.pdf
 
 configfile: "config.yaml"
 
