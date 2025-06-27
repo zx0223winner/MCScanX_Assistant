@@ -1,4 +1,4 @@
-# MCScanX_Assistant: preprocessing the input files
+# MCScanX_Assistant: preprocessing the input files 
 #snakemake --profile default all -s workflow/Snakefile_input_preparing -n
 
 # Once this is finished,run the next Snakemake file
