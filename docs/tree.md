@@ -1,3 +1,4 @@
+```
 MCScanX_Assistant/
 ├── bin
 ├── data
@@ -69,7 +70,6 @@ MCScanX_Assistant/
 │   ├── featuretable_to_MCScanX_gff
 │   ├── generate_MCScanX_gff_inputs
 │   ├── gff_to_MCScanX_gff
-│   ├── iamond_db_mcscanx
 │   ├── isoform2one
 │   ├── ka_and_ks_collinearity
 │   ├── Ks_density_plot
@@ -92,17 +92,10 @@ MCScanX_Assistant/
 │   │   ├── Athaliana
 │   │   │   └── Athaliana.html
 │   │   ├── data
-│   │   ├── downstream_analyses
-│   │   └── old
-│   │       ├── Athaliana
-│   │       └── Athaliana.html
-│   ├── MCScanX_protocol
-│   └── old
-│       ├── DupGen_finder
-│       ├── hsdecipher
-│       └── hsdfinder
-│           └── __pycache__
+│   │   └── downstream_analyses
+│   └── MCScanX_protocol
 └── workflow
     └── envs
 
 105 directories
+```
