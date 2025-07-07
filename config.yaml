@@ -33,14 +33,12 @@ ncbi_genomes:
         ncbi_assembly: "data/ncbi_download/GCA_016771965.1.zip"
         assembly_id: "GCA_016771965.1"      
         feature_table: "data/ncbi_download/GCA_016771965.1_ASM1677196v1_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Bcarinata
 
     Asuecica:
         ncbi_assembly: "data/ncbi_download/GCA_019202805.1.zip"
         assembly_id: "GCA_019202805.1"
         feature_table: "data/ncbi_download/GCA_019202805.1_ASM1920280v1_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Asuecica
      
 
@@ -48,7 +46,6 @@ ncbi_genomes:
         ncbi_assembly: "data/ncbi_download/GCA_905216605.1.zip"
         assembly_id: "GCA_905216605.1"
         feature_table: "data/ncbi_download/GCA_905216605.1_AARE701a_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Aarenosa
 
 
@@ -56,7 +53,6 @@ ncbi_genomes:
         ncbi_assembly: "data/ncbi_download/GCA_911865555.2.zip"
         assembly_id: "GCA_911865555.2"
         feature_table: "data/ncbi_download/GCA_911865555.2_T_arvense_v2_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Tarvense
 
 
@@ -64,15 +60,13 @@ ncbi_genomes:
         ncbi_assembly: "data/ncbi_download/GCF_000001735.4.zip"
         assembly_id: "GCF_000001735.4"
         feature_table: "data/ncbi_download/GCF_000001735.4_TAIR10.1_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Athaliana
 
                     
     Boleracea:
         ncbi_assembly: "data/ncbi_download/GCF_000695525.1.zip"
         assembly_id: "GCF_000695525.1"
-        feature_table: "data/ncbi_download/GCF_000695525.1_BOL_feature_table.txt.gz"        
-        outgroups: "Arabidopsis_thaliana"
+        feature_table: "data/ncbi_download/GCF_000695525.1_BOL_feature_table.txt.gz"
         species: Boleracea
 
 
@@ -80,7 +74,6 @@ ncbi_genomes:
         ncbi_assembly: "data/ncbi_download/GCF_000801105.2.zip"
         assembly_id: "GCF_000801105.2"
         feature_table: "data/ncbi_download/GCF_000801105.2_ASM80110v3_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Rsativus
 
 
@@ -88,7 +81,6 @@ ncbi_genomes:
         ncbi_assembly: "data/ncbi_download/GCF_020379485.1.zip"
         assembly_id: "GCF_020379485.1"
         feature_table: "data/ncbi_download/GCF_020379485.1_Da-Ae_feature_table.txt.gz"
-        outgroups: "Arabidopsis_thaliana"
         species: Bnapus
     
     # Mtruncatula:
