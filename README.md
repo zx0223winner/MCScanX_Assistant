@@ -124,3 +124,17 @@ Test conda environment: diamond v2.1.11, mcscanx v1.0.0, HSDFinder v1.0, HSDecip
 > [!NOTE]
 > Environment files (.yaml) have already been set up in directory: `workflow/envs/` except `InterProScan` and `KEGG`.
 
+
+
+# Ultra-Low-Depth Sequencing Genetic Analysis
+
+## Overview
+This repository serves as a dedicated space for housing the codebase used in our publication for genetic analysis of ultra-low depth sequencing data. It is intended to provide researchers with access to the methodologies and algorithms employed in our study, facilitating further research and analysis in the field of genetic.
+
+If the readers have any questions, please ask us by email (zengjingyu@genomics.cn) in English or Chinese.
+
+## License
+The code within this repository is licensed under the [MIT License](./LICENSE). Please refer to the license file for more information on the terms and conditions of using and contributing to this project.
+
+## Ciation
+If you used the methods in this respository, please cite:
