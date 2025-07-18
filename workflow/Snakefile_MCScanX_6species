@@ -1,7 +1,8 @@
 # MCScanX_Assistant: MCScanX running and Ks distribution
 #snakemake --profile default all -s workflow/Snakefile_MCScanX_6species -n
+#this step can take a long time of running, users can skip this step as you wish and check the results from the file pre-parpared (MCScanX_Assistant_results.tar.gz through the Google drive)
 
-# draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_MCScanX_6species --forceall --rulegraph | dot -Tpdf > dag_MCScanX_6species.pdf
+#Draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_MCScanX_6species --forceall --rulegraph | dot -Tpdf > dag_MCScanX_6species.pdf
 
 configfile: "config.yaml"
 
@@ -159,7 +160,7 @@ rule ka_and_ks_collinearity:
 2> {log.err}
 """
 
-# due to the perl script: add_ka_and_ks_to_collinearity_Yn00.pl, which may has some temp files left in main dir, which can be safefly removed 
+# due to the perl script: add_ka_and_ks_to_collinearity_Yn00.pl, which may has some temp files left in main dir, which can be safefly removed in home directory
 #	rm *.aln; \
 #	rm *.cds; \
 #	rm *.dnd; \
