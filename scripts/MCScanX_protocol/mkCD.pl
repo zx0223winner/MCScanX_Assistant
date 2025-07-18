@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#$path = "/storage/ppl/zxwinner/test/DupGen_finder/MCScanX_protocol";
+
 if ($#ARGV != 1 ) {
 	print "usage: perl mkCD.pl <dir to ncbi> <species_folder>\n";
 	exit;
