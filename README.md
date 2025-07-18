@@ -71,7 +71,7 @@ cd MCScanX_Assistant
 > (optional) please download the test result - `MCScanX_Assistant_results.tar.gz` through the Google drive [link](https://drive.google.com/file/d/1RorENiC0NPZhclForl9uU1pGLyHhgqVZ/view?usp=sharing). This file includes complete running results for users to check.
 
 ```
-# Then decompress the file MCScanX_Assistant_data.tar.gz under the HSDSnake directory,
+# Then decompress the file MCScanX_Assistant_data.tar.gz under the MCScanX_Assistant directory,
 # This will bring you a data folder with test files ready 
 tar -xvzf MCScanX_Assistant_results.tar.gz
 
