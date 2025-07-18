@@ -92,4 +92,3 @@ The code within this repository is licensed under the [MIT License](./LICENSE). 
 ## Ciation
 If you used the codes in this respository, please cite:
 
-Xi Zhang, David Roy Smith, John M Archibald, Key step missing for input file preparation in MCScanX , Nature Protocols, (in submission).
