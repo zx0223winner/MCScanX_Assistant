@@ -1,7 +1,5 @@
 ## References
 
-*Xi Zhang, David Roy Smith,John M Archibald,  Key step missing for input file preparation in MCScanX , Nature protocols, 2025;, (in submission)*
-
 ### References for Dependencies 
 1. **McScanX_protocol**: Wang, Yupeng, et al. "Detection of colinear blocks and synteny and evolutionary analyses based on utilization of MCScanX." Nature Protocols 19.7 (2024): 2206-2229.
 2. **McScanX**: Wang, Yupeng, et al. "MCScanX: a toolkit for detection and evolutionary analysis of gene synteny and collinearity." Nucleic acids research 40.7 (2012): e49-e49.
