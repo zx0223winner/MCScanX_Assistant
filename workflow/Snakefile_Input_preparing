@@ -1,10 +1,10 @@
 # MCScanX_Assistant: preprocessing the input files 
 #snakemake --profile default all -s workflow/Snakefile_Input_preparing -n
 
-# Once this is finished,run the next Snakemake file
+# Once the previous is finished,run the next Snakemake file
 #snakemake --profile default all -s workflow/Snakefile_Ks_distribution_plot -n
 
-#or the 6 species all together 
+# Once the previous is finished,run the next Snakemake file
 #snakemake --profile default all -s workflow/Snakefile_MCScanX_6species -n
 
 # draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_Input_preparing --forceall --rulegraph | dot -Tpdf > dag_input_preparing.pdf
@@ -126,7 +126,7 @@ rm -r {params.dir1}{params.species_name} \
 """
 
 
-# Since the input.gff file for mcscanx is nether gff3 nor bed file format, for simplity, call it MCScanX_gff file
+# Since the input.gff file for mcscanx is nether gff3 nor bed file format, here we call it MCScanX_gff file
 # If the mkGFF3.pl does not work on your gff3 file due to the format of naming, there are other ways to generate the MCScanX_gff, check the next rules and substitue the MCScanX_gff for which works
 rule generate_MCScanX_gff_inputs:
 	input:
@@ -222,8 +222,9 @@ rule make_cds:
 > {log.out} \
 2> {log.err}
 """
-#Due to alternative splicing, the mRNA isoform/transcript can have different length which encoding the protein product with different ID but from same gene.
-#So here we prepare only the longest protein for each gene (i.e., the primary transcript (mRNA) encoding for the protein) to avoid detectinng duplicate genes from themselves.
+
+#Due to alternative splicing, the mRNA isoform/transcript for the same gene can encode the protein product with different ID.
+#Here we use the longest protein for each gene (i.e., the primary transcript (mRNA) encoding for the protein).
 rule isoform2one:
 	input:
 		feature_table = "data/ncbi/{name}/{name}_feature_table.txt",
@@ -248,11 +249,11 @@ rule isoform2one:
 3> {log.err}
 """
 
-#note: there are rare cases for NCBI without feature to download 
+#Note: there are some rare cases for NCBI without the feature table to download 
 #(e.g., https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_feature_table.txt.gz). 
 
 #If that is the issue, users can optionally prepare primary protein gene list -  "XX_protein.list" from NCBI website manually 
-#for example, the proteins column for Chlamydomonas reinhardtii: https://www.ncbi.nlm.nih.gov/datasets/gene/GCF_000002595.2/?gene_type=protein-coding
+#For example, the proteins column for A. athaliana: https://www.ncbi.nlm.nih.gov/datasets/gene/GCF_000001735.4/?gene_type=protein-coding
 
 rule prepare_primary_protein:
 	input:
@@ -279,7 +280,6 @@ python3 {params.dir}/index_header_to_seq.py \
 """
 
 
-# Waiting at most 60 seconds for missing files
 rule diamond_db_mcscanx:
 	input:
 		"data/ncbi/{name}_primary/{name}_protein.faa"
@@ -308,7 +308,7 @@ rule diamond_db_mcscanx:
 2> {log.err}
 """
 
-# note: --max-target-seqs parameter will impact how many candidate duplicates will be detected
+# note: --max-target-seqs parameter will impact how many candidate duplicates will be detected, here is consistent with the Wang et.al. Nature protocol. 2024
 rule diamond_mcscanx:
 	input:
 		protein = "data/ncbi/{name}_primary/{name}_protein.faa",
