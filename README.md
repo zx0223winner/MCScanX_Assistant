@@ -1,18 +1,15 @@
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.readthedocs.io)
 [![run with conda ](http://img.shields.io/badge/run%20with-conda%20-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 
-## Introduction
 
-**HSDSnake** is a [SnakeMake](https://snakemake.readthedocs.io) pipeline for comprehensive analysis of highly similar duplicates (HSDs) in genomes.
 
-- Gene duplicates are categorized into different categories (e.g., dispersed (DD), proximal (PD), tandem (TD), transposed (TRD), and whole genome duplication (WGD))
-- Perform the analysis with reliance on sequence similarity (diamond blast all-vs-all), structional annotation (.gff3) and functional annotation (InterPRO, Pfam, KEGG, etc.).
-- The tools are shown in the Pipeline Flowchart with [Detailed Usage](./docs/Usage.md) for each step and their references are listed in [Citations.md](/docs/Citations.md).
+# MCScanX_Assistant
 
-*Zhang et al. "HSDSnake: a user-friendly SnakeMake pipeline for analysis of duplicate genes in eukaryotic genomes." Bioinformatics (2025): btaf325. https://doi.org/10.1093/bioinformatics/btaf325*
+## Overview
+This repository stored the custom codes we used for the re-analysis of the protocol from Wang et al. Nature Protocols https://doi.org/10.1038/s41596-024-00968-2 (2024). 
 
-## [Pipeline Flowchart](resources/pipeline.md)
-![](resources/HSDSnake_workflow.png)
+It is intended to provide researchers with access to reproduce our work, facilitating future researchers to easily prepare the input data and install of MCScanX tool.
+
 
 ## Usage
 
@@ -28,40 +25,25 @@ snakemake --help
 ```
 
 > [!NOTE]
-> Begin with a `config.yaml` file as below (detailed all the input files requested for hsdsnake).
+> Begin with a `config.yaml` file as below (detailed the input files requested).
 > 
-> For demonstration, NCBI assemblies of *A. thaliana* and *C. reinhardtii* are used as examples, please only substitute the species name to yours in the below config.yaml file, keep the input file format, such as Arabidopsis_thaliana.fa, Arabidopsis_thaliana.interproscan.tsv, Arabidopsis_thaliana.ko.txt.
->
-> The outgroup species in the config.yaml file is useful for suggesting other types of duplicates.
+> The six species of NCBI assemblies are used in this analysis, including *B. carinata*, *A. suecica*, *A. arenosa*, *T. arvense*, *A. thaliana*, *B. oleracea*. 
+
 
 ## Arguments
 **config.yaml**
 ```config.yaml
-ncbi_assemblies:
-  - GCF_000001735.4
-  - GCF_000002595.2
+
+species_name:
+  - Athaliana
 
 ncbi_genomes:
     Athaliana:
         ncbi_assembly: "data/ncbi_download/GCF_000001735.4.zip"
-        assembly_id: "GCF_000001735.4"      
-        outgroup: "Creinhardtii"
-        interproscan: "data/Athaliana.interproscan.tsv"
-        KEGG: "data/Athaliana.ko.txt"
+        assembly_id: "GCF_000001735.4"
         feature_table: "data/ncbi_download/GCF_000001735.4_TAIR10.1_feature_table.txt.gz"
-    Creinhardtii:
-        ncbi_assembly: "data/ncbi_download/GCF_000002595.2.zip"
-        assembly_id: "GCF_000002595.2"
-        outgroup: "Athaliana"
-        interproscan: "data/Creinhardtii.interproscan.tsv"
-        KEGG: "data/Creinhardtii.ko.txt"
-        feature_table: "data/ncbi_download/GCF_000002595.2_Chlamydomonas_reinhardtii_v5.5_feature_table.txt.gz"
+        species: Athaliana
 ```
-
-> [!NOTE]
-> Optional: To add new species, users can simply put extra lines of species name, ncbi_assembly id and required files in the `config.yaml` file as above.
->
-> The ncbi_assembly (e.g., GCF_000001735.4.zip) contains the standard genomic files from NCBI such as gff3, cds, protein.fa. The other two files XX.interproscan.tsv and XX.ko.txt can be acquried from dependencies which was [detailed here in the usage](./docs/Usage.md).
 
 > [!NOTE]
 > Optional: To download extra ncbi assembly 'XX.zip' from NCBI, users can substitue the ncbi_assembly id (e.g., GCF_000001735.4) with yours in the command below:
@@ -76,65 +58,38 @@ Now, you can run the pipeline using the following commands:
 
 ```
 # Download the package
-git clone https://github.com/zx0223winner/HSDSnake.git
+git clone https://github.com/zx0223winner/MCScanX_Assistant.git
 
 # enter the working directory
-cd HSDSnake
+cd MCScanX_Assistant
 ```
 > [!NOTE]
->Due to the size of sample files (we have prepared users with the standard input files of NCBI genome assemblies for *A. thaliana* and *C. reinhardtii* ), please download the test data - `HSDSnake_data.tar.gz` through the Google drive [link](https://drive.google.com/file/d/12vn4PqowWs2ug9WWiUNkDI-vzYOUhEgt/view?usp=sharing)
+>Due to the size of sample files (we have prepared users with the standard input files of NCBI genome assemblies for the six species of NCBI assemblies are used in this analysis, including *B. carinata*, *A. suecica*, *A. arenosa*, *T. arvense*, *A. thaliana*, *B. oleracea*.  ).
+>
+> please download the test data - `MCScanX_Assistant_data.tar.gz` through the Google drive [link](https://drive.google.com/file/d/13KlaGXuVQysIAXoMjXtt2lHxVb-WNiP7/view?usp=sharing)
+>
+> (optional) please download the test result - `MCScanX_Assistant_results.tar.gz` through the Google drive [link](https://drive.google.com/file/d/1RorENiC0NPZhclForl9uU1pGLyHhgqVZ/view?usp=sharing). This file includes complete running results for users to check.
 
 ```
-# Then decompress the file HSDSnake_data.tar.gz under the HSDSnake directory,
+# Then decompress the file MCScanX_Assistant_data.tar.gz under the HSDSnake directory,
 # This will bring you a data folder with test files ready 
-tar -xvzf HSDSnake_data.tar.gz
+tar -xvzf MCScanX_Assistant_results.tar.gz
 
 # Then you can give a dry run by the following command.
-snakemake --use-conda --cores all -s workflow/Snakefile_part1 -n
+snakemake --use-conda --cores all -s workflow/Snakefile_Input_preparing -n
 
 # If everthing is OK, then you can test the pipeline by running one after another:
-snakemake --use-conda --cores all -s workflow/Snakefile_part1
-snakemake --use-conda --cores all -s workflow/Snakefile_part2
-snakemake --use-conda --cores all -s workflow/Snakefile_part3
+snakemake --use-conda --cores all -s workflow/Snakefile_Input_preparing
+snakemake --use-conda --cores all -s workflow/Snakefile_Ks_distribution_plot
+snakemake --use-conda --cores all -s workflow/Snakefile_MCScanX_6species
 ```
-#### [Snakemake_part 1](resources/snakemake_part1.png)
-#### [Snakemake_part 2](resources/snakemake_part2.png)
-#### [Snakemake_part 3](resources/snakemake_part3.png)
-
-## Dependencies
-
-    1. Data Processing: Diamond, InterProscan, KEGG_BlastKOALA, McScanX_protocol, DupGen_finder, McScanX, HSDFinder, HSDecipher
-    2. Python modules: pandas v1.5.3, scikit-learn, scipy, matplotlib, numpy
-    3. Perl modules: perl-bioperl v1.7.8
-
-Test conda environment: diamond v2.1.11, mcscanx v1.0.0, HSDFinder v1.0, HSDecipher v1.0, bedops v2.4.39
-
-### Links to the Dependencies:
- 
- 1. Pfam 37.0 (Sep 2024, 21,979 entries): https://pfam.xfam.org
- 2. InterPro 101.0 (Jul 2024, 45,899 entries):http://www.ebi.ac.uk/interpro/
- 3. KEGG Orthology Database: https://www.genome.jp/kegg/ko.html
- 4. InterProscan: https://github.com/ebi-pf-team/interproscan
- 5. KEGG : https://www.kegg.jp/kegg/
- 6. Diamond: https://github.com/bbuchfink/diamond
- 7. McScanX_protocol: http://bdx-consulting.com/mcscanx-protocol/
- 8. DupGen_finder: https://github.com/qiao-xin/DupGen_finder/tree/master
- 9. McScanX: https://github.com/wyp1125/MCScanX
-
-> [!NOTE]
-> Environment files (.yaml) have already been set up in directory: `workflow/envs/` except `InterProScan` and `KEGG`.
 
 
-
-# Ultra-Low-Depth Sequencing Genetic Analysis
-
-## Overview
-This repository serves as a dedicated space for housing the codebase used in our publication for genetic analysis of ultra-low depth sequencing data. It is intended to provide researchers with access to the methodologies and algorithms employed in our study, facilitating further research and analysis in the field of genetic.
-
-If the readers have any questions, please ask us by email (zengjingyu@genomics.cn) in English or Chinese.
 
 ## License
 The code within this repository is licensed under the [MIT License](./LICENSE). Please refer to the license file for more information on the terms and conditions of using and contributing to this project.
 
 ## Ciation
-If you used the methods in this respository, please cite:
+If you used the codes in this respository, please cite:
+
+Xi Zhang, David Roy Smith, John M Archibald, Key step missing for input file preparation in MCScanX , Nature Protocols, (in submission).
