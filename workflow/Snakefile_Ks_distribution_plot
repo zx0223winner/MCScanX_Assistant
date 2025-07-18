@@ -1,9 +1,8 @@
 # MCScanX_Assistant: Ks distribution for individual species
 #snakemake --profile default all -s workflow/Snakefile_Ks_distribution_plot -n
 
-#or the 6 species all together 
+# once the previous has been finished, then run the next
 #snakemake --profile default all -s workflow/Snakefile_MCScanX_6species -n
-
 
 # draw dag plot to have an overview of the snakemake pipeline: snakemake -s workflow/Snakefile_Ks_distribution_plot --forceall --rulegraph | dot -Tpdf > dag_ks_distribution_plot.pdf
 
@@ -34,8 +33,8 @@ rule all:
 			species_name = config['species_name'])	
 
 
-#Run the mcscanx
-#If mcscanx has no results, Solution is to put .blast and .gff file inside MCScanX folder without creating a separate folder.
+#TIP: Run the mcscanx
+#If mcscanx has no results, Solution is to put .blast and .gff file inside MCScanX folder without creating a separate folder, the following rules can do this.
 
 rule mcscanx:
 	input:
@@ -96,11 +95,7 @@ rule ka_and_ks_collinearity:
 2> {log.err}
 """
 
-# due to the perl script: add_ka_and_ks_to_collinearity_Yn00.pl, which may has some temp files left in main dir, which can be safefly removed 
-#	rm *.aln; \
-#	rm *.cds; \
-#	rm *.dnd; \
-#	rm *.pro; \
+#The following temp files can be safefly removed in the home directory (*.aln, *.cds,*.dnd,*.pro)
 
 rule adding_Ka_Ks_into_collinearity:
 	input:
