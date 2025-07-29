@@ -2,7 +2,7 @@
 
 The MCScanX_Assistant documentation is split into the following pages:
 - [Usage](Usage.md)
-  - An overview of how to prepare the input file from the Nature Protoocol scripts (Wang et.al.2024).
+  - An overview of how to apply the pipeline to assist running Nature Protoocol scripts (Wang et.al.2024), especially for faster preparing the input files and running MCScanX.
 
 - [Citations](Citations.md)
   - References which support your work.
