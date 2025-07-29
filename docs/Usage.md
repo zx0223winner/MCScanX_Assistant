@@ -1,27 +1,36 @@
-# HSDSnake: Supplementary materials<!-- omit in toc -->
+# MCScanX_Assistant: Supplementary materials<!-- omit in toc -->
 
->Xi Zhang1,2*, Yining Hu3, David Roy Smith4, Zhenyu Cheng2,5, John M. Archibald1,2*
+>Xi Zhang1,2*, David Roy Smith3*,
 
 >1Department of Biochemistry and Molecular Biology, Dalhousie University, Halifax, 
 Nova Scotia, B3H 4R2, Canada.
+>
 >2Institute for Comparative Genomics, Dalhousie University, Halifax, Nova Scotia, 
 B3H 4R2, Canada.
->3Department of Computer Science, Western University, London, Ontario, N6A 5B7, Canada. 
->4Department of Biology, Western University, London, Ontario, N6A 5B7, Canada. 
->5Department of Microbiology and Immunology, Dalhousie University, Halifax, Nova Scotia, Canada.
+>
+>3Department of Biology, Western University, London, Ontario, N6A 5B7, Canada. 
 
 >*Correspondence: xi.zhang@dal.ca (X.Z.)
->*Correspondence: john.archibald@dal.ca (J.M.A.)
+>*Correspondence: dsmit242@uwo.ca (D.R.S)
 >*To whom correspondence should be addressed.
 
 
-## **:chart_with_upwards_trend:Supplementary Figure S1: HSDSnake workflow.**
-* Part 1-2: (A) Prepare the SnakeMake config file which contains the species name, out group name, genomic assembly ID and other input file directories.
+## **:chart_with_upwards_trend:MCScanX_Assistant workflow.**
+
+* Part 1: (A) Prepare the SnakeMake config file which contains the species name, out group name, genomic assembly ID and other input file directories.
 (B) Detect and classify the gene duplicate pairs into five different duplication types (DD, PD, TD, TRD, and WGD) via the scripts from the DupGen finder and MCScanX protocols. (C) Calculate and visualize the synonymous substitution per substitution site (Ks), non-synonymous substitutions per substitution site (Ka), and their ratios (Ka/Ks) for each gene pair;
 
-* Part 3: (1) Prepare the SnakeMake config file which contains different types of gene duplicates.(2) Prepare an InterProScan search result file of your genome in tab-separated values (tsv.).(3) Prepare a gene list with KO annotation from KEGG database. (4) Run the built-in HSDFinder tool and diamond BlastP all-against-all search; this will yield an HSD output file in tab-separated value (tsv.) format. (5) Curate the HSDs using the built-in HSDecipher downstream analysis tool with a combination of thresholds. (6) Evaluate the suitability of the results and visualize the performance outputs in a plot. (7) Visualize the curated HSD results from a single or multiple genome perspective in a heatmap and generate a detailed HSDs functional annotation tabular file. The plot of step 6 was adopted with permission (Zhang et al., 2021b).
+![](../../resources/dag_input_preparing.pdf)
 
-![](../resources/HSDSnake_workflow.png)
+
+* Part 2: (1) Prepare the SnakeMake config file which contains different types of gene duplicates.(2) Prepare an InterProScan search result file of your genome in tab-separated values (tsv.).(3) Prepare a gene list with KO annotation from KEGG database. (4) Run the built-in HSDFinder tool and diamond BlastP all-against-all search; this will yield an HSD output file in tab-separated value (tsv.) format. (5) Curate the HSDs using the built-in HSDecipher downstream analysis tool with a combination of thresholds. (6) Evaluate the suitability of the results and visualize the performance outputs in a plot. (7) Visualize the curated HSD results from a single or multiple genome perspective in a heatmap and generate a detailed HSDs functional annotation tabular file. The plot of step 6 was adopted with permission (Zhang et al., 2021b).
+* 
+![](../../resources/dag_ks_distribution_plot.pdf)
+
+
+* Part 3: (1) Prepare the SnakeMake config file which contains different types of gene duplicates.(2) Prepare an InterProScan search result file of your genome in tab-separated values (tsv.).(3) Prepare a gene list with KO annotation from KEGG database. (4) Run the built-in HSDFinder tool and diamond BlastP all-against-all search; this will yield an HSD output file in tab-separated value (tsv.) format. (5) Curate the HSDs using the built-in HSDecipher downstream analysis tool with a combination of thresholds. (6) Evaluate the suitability of the results and visualize the performance outputs in a plot. (7) Visualize the curated HSD results from a single or multiple genome perspective in a heatmap and generate a detailed HSDs functional annotation tabular file. The plot of step 6 was adopted with permission (Zhang et al., 2021b).
+* 
+![](../../resources/dag_MCScanx_6species.pdf)
 
 
 ## **:clipboard:Supplementary Text : Usage of SnakeMake pipeline.**
@@ -35,6 +44,9 @@ Contents:
 * Text S3. Detect and classify gene duplication categories by DupGen_finder (Snakefile_part2); 
 * Text S4. Refine and visualize the gene duplicates with HSDFiner (Snakefile_part3).
 
+input_preparing
+Ks_distribution_plot
+MCScanX_6species
 
 ## Text S1. [Config.yaml](../config.yaml) file 
 You will need to edit the config.yaml file for your own usage. An [example config.yaml](../config.yaml) has been provided to test the pipeline.
@@ -43,7 +55,7 @@ You will need to edit the config.yaml file for your own usage. An [example confi
 > please only substitute the species name with yours, keep the input file format, such as Arabidopsis_thaliana.fa, Arabidopsis_thaliana.interproscan.tsv, Arabidopsis_thaliana.ko.txt
 
 ``` conf.yaml
-# Critical: input files for HSDSnake, please only substitute the species name to yours, keep the input file format,
+# Critical: input files for MCScanX_Assistant, please only substitute the species name to yours, keep the input file format,
 # such as Athaliana.interproscan.tsv, Athaliana.ko.txt
 
 ncbi_assemblies:
@@ -135,7 +147,7 @@ heatmap_width: 30
 `Purpose`: This rule provides a convenient way to download the standard input files from NCBI. 
 
 > [!NOTE]
-> To avoid repeatly download the ".zip" files with the example file we provided ('HSDSnake_data.tar.gz'), we commented the rule in the snakefile.
+> To avoid repeatly download the ".zip" files with the example file we provided ('MCScanX_Assistant_data.tar.gz'), we commented the rule in the snakefile.
 
 `scripts`:
 ```
@@ -762,7 +774,7 @@ NP_001030613.1	NP_001327194.1	100	468	0	0	116	583	1	468	0.0	917
 `Purpose`: This step is to generate the protein annotaion file by running interproscan search.
 
 > [!WARNING]
-> The InterProScan (Quevillon et al., 2005, Mitchell et al., 2019) and KEGG (Kanehisa and Goto, 2000b) are the only two dependencies without integrating into the HSDSnake pipeline due to the lack of Conda environment (the latest InterProScan Conda package of 5.59 fails in SnakeMake) and the limitation to web-only access in KEGG, such as BlastKOALA (Kanehisa et al., 2016)).
+> The InterProScan (Quevillon et al., 2005, Mitchell et al., 2019) and KEGG (Kanehisa and Goto, 2000b) are the only two dependencies without integrating into the MCScanX_Assistant pipeline due to the lack of Conda environment (the latest InterProScan Conda package of 5.59 fails in SnakeMake) and the limitation to web-only access in KEGG, such as BlastKOALA (Kanehisa et al., 2016)).
 
 > [!TIP]
 > It is straightforward to generate the InterProScan output by either checking the respective [ReadMe file](https://interproscan-docs.readthedocs.io/en/latest/) or following the [protocol](https://www.sciencedirect.com/science/article/pii/S2666166721003269) at Step 6-9.
@@ -884,7 +896,7 @@ Column explanation:
 ```
 
 > [!TIP]
-> [For the specific usage of HSD_to_KEGG.py, please read here](https://github.com/zx0223winner/HSDSnake/blob/main/docs/Readme-2.md#5-creating-heatmap)
+> [For the specific usage of HSD_to_KEGG.py, please read here](https://github.com/zx0223winner/MCScanX_Assistant/blob/main/docs/Readme-2.md#5-creating-heatmap)
  
 ### hsdecipher statistcs
 
