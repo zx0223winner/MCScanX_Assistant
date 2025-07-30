@@ -15,38 +15,26 @@ B3H 4R2, Canada.
 >*To whom correspondence should be addressed.
 
 
-## **:chart_with_upwards_trend:MCScanX_Assistant workflow.**
+### **:chart_with_upwards_trend:MCScanX_Assistant workflow.**
 
-* Part 1: (A) Prepare the SnakeMake config file which contains the species name, out group name, genomic assembly ID and other input file directories.
-(B) Detect and classify the gene duplicate pairs into five different duplication types (DD, PD, TD, TRD, and WGD) via the scripts from the DupGen finder and MCScanX protocols. (C) Calculate and visualize the synonymous substitution per substitution site (Ks), non-synonymous substitutions per substitution site (Ka), and their ratios (Ka/Ks) for each gene pair;
+* Part 1: Snakefile_input_preparing
+* (1)Prepare the SnakeMake config file which contains the species name, NCBI genomic assembly ID and other input file directories.
+* (2)Prepare the '.gff' and diamond BLASTP '.blast' files for MCScanX protocol.
+* (3)Provide alternative options for preparing the '.gff' files and iterate the all-vs-all blastp on all genome pairs
 
-![](../../resources/dag_input_preparing.pdf)
-
-
-* Part 2: (1) Prepare the SnakeMake config file which contains different types of gene duplicates.(2) Prepare an InterProScan search result file of your genome in tab-separated values (tsv.).(3) Prepare a gene list with KO annotation from KEGG database. (4) Run the built-in HSDFinder tool and diamond BlastP all-against-all search; this will yield an HSD output file in tab-separated value (tsv.) format. (5) Curate the HSDs using the built-in HSDecipher downstream analysis tool with a combination of thresholds. (6) Evaluate the suitability of the results and visualize the performance outputs in a plot. (7) Visualize the curated HSD results from a single or multiple genome perspective in a heatmap and generate a detailed HSDs functional annotation tabular file. The plot of step 6 was adopted with permission (Zhang et al., 2021b).
-* 
-![](../../resources/dag_ks_distribution_plot.pdf)
-
-
-* Part 3: (1) Prepare the SnakeMake config file which contains different types of gene duplicates.(2) Prepare an InterProScan search result file of your genome in tab-separated values (tsv.).(3) Prepare a gene list with KO annotation from KEGG database. (4) Run the built-in HSDFinder tool and diamond BlastP all-against-all search; this will yield an HSD output file in tab-separated value (tsv.) format. (5) Curate the HSDs using the built-in HSDecipher downstream analysis tool with a combination of thresholds. (6) Evaluate the suitability of the results and visualize the performance outputs in a plot. (7) Visualize the curated HSD results from a single or multiple genome perspective in a heatmap and generate a detailed HSDs functional annotation tabular file. The plot of step 6 was adopted with permission (Zhang et al., 2021b).
-* 
-![](../../resources/dag_MCScanx_6species.pdf)
+![img](../resources/dag_input_preparing.png)
 
 
 ## **:clipboard:Supplementary Text : Usage of SnakeMake pipeline.**
 
 Contents: 
 
-* Text S1. Introduction for the config.yaml file;
-  
-* Text S2. Download and preprocess the NCBI assemblies (Snakefile_part1);
-  
-* Text S3. Detect and classify gene duplication categories by DupGen_finder (Snakefile_part2); 
-* Text S4. Refine and visualize the gene duplicates with HSDFiner (Snakefile_part3).
+* Text S1. Introduction for the config.yaml file;  
+* Text S2. Download and preprocess the NCBI assemblies (Snakefile_Input_preparing);
+* Text S3. Visualization of the Ks distribution plots (Snakefile_Ks_distribution_plot); 
+* Text S4. Reproduce the pre-processing of 6 species in the protocol (Snakefile_MCScanX_6species).
 
-input_preparing
-Ks_distribution_plot
-MCScanX_6species
+  
 
 ## Text S1. [Config.yaml](../config.yaml) file 
 You will need to edit the config.yaml file for your own usage. An [example config.yaml](../config.yaml) has been provided to test the pipeline.
@@ -139,6 +127,34 @@ heatmap_hight: 20
 heatmap_width: 30
 
 ```
+
+
+### **:chart_with_upwards_trend:MCScanX_Assistant workflow.**
+* Part 2: Snakefile_Ks_distribution_plot
+* (1)Calculating the kaks via the perl script
+* (2)Display the distribution of Ks peaks
+* (3)create the density plot for the Ks values
+  
+![](../resources/dag_ks_distribution_plot.png)
+
+
+
+
+
+
+
+### **:chart_with_upwards_trend:MCScanX_Assistant workflow.**
+* Part 3: Snakefile_MCScanX_6species
+* Reproduce what the protocol did for the 6 species all together
+
+![](../resources/dag_MCScanx_6species.png)
+
+
+
+
+
+
+
 
 ## Text S2. [Snakefile_part1](../workflow/Snakefile_part1)
 
