@@ -639,4 +639,4 @@ cat {params.dir1}/*.cds|tee {output.cds}; \
 * blast = "data/mcscanx/{ks_test_name}/{ks_test_name}.blast",
 * cds = "data/mcscanx/{ks_test_name}/{ks_test_name}.cds"
 
-### The rest steps are similair to the previous file. But will take longer time ti run, since there are six species running together here.
+### The rest steps are similair to the previous snakemake file. But it will take longer time to run, since there are six species running together here.
