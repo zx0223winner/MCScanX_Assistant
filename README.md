@@ -90,5 +90,5 @@ snakemake --use-conda --cores all -s workflow/Snakefile_MCScanX_6species
 The code within this repository is licensed under the [MIT License](./LICENSE). Please refer to the license file for more information on the terms and conditions of using and contributing to this project.
 
 ## Ciation
-If you used the codes in this respository, please cite:
+If you used the codes in this respository, please cite the link.
 
