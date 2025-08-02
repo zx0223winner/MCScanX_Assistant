@@ -12,6 +12,7 @@
 configfile: "config.yaml"
 
 import itertools
+import pandas as pd
 
 rule all:
 	input:
@@ -39,7 +40,9 @@ rule all:
 	# Other option to yield the MCScanX gff: 
 		expand("data/intermediateData/{name}/{name}.gff-option_one",
 			name = config['names']),
-	
+		expand("data/intermediateData/{name}/{name}.gff-option_one_test",
+			name = config['names']),
+
 	# Other option to yield the MCScanX gff: 
 		expand("data/intermediateData/{name}/{name}.gff-option_two",
 			name = config['names']),
@@ -158,7 +161,7 @@ rule gff_to_MCScanX_gff:
 	input:
 		gff = "data/ncbi/{name}/{name}_genomic.gff"
 	output:
-		fakegff = "data/intermediateData/{name}/{name}.gff-option_one"
+		MCScanX_gff = "data/intermediateData/{name}/{name}.gff-option_one"
 	log:
 		err = "log/gff_to_MCScanX_gff/{name}.err"
 	conda:
@@ -171,12 +174,60 @@ rule gff_to_MCScanX_gff:
 	shell: """
 cat {input.gff} \
 | grep -v '^#' \
-| awk '$3 == "gene"' \
+| awk '$3 == "gene"'|sed 's/gene-//g' \
 | gff2bed \
 | awk 'BEGIN {{OFS="\t"}} {{print $1,$4,$2,$3}}' \
-> {output.fakegff} \
+> {output.MCScanX_gff} \
 2> {log.err}
 """
+#gff2bed --attribute-key=gene_id example.gff3 > output.bed
+
+# Fixing the gene name (AT3G01100) vs protein name (NP_186759.2) issue, which has to reply on the XX_feature_table.txt.
+# the option one '.gff' yield gene id not protein accession id, which is important to ensure the same ID to be used in '.blast' file
+# here is the attempt to solve this, this is replying on the XX_feature_table.txt is organized in standard format.
+
+# Input files
+# primary list: "data/ncbi/{name}_primary/{name}_protein.list"
+# feature_table = "data/ncbi/{name}/{name}_feature_table.txt",
+# MCScanX_gff = "data/intermediateData/{name}/{name}.gff-option_one"
+
+# This can yield primary protein feature_table
+# awk 'NR==FNR{a[$13]=$0;next}{print a[$1]}' {name}_feature_table.txt {name}_protein.list|awk '$1 == "mRNA"|awk '{print $13'\t'$17}' > {name}_primary_id.txt
+# This can acquire the protein id from gene id, python pandas can use merge to realize this quickly, but here to stick with unix using join option
+# https://www.geeksforgeeks.org/linux-unix/join-command-linux/
+# join -1 2 -2 2 {name}.gff-option_one {name}_primary_feature_table.txt|awk '{print $2'\t'$5'\t'$3'\t'$4}'|sed 's/ /\t/g' > {name}.gff-option_one_test
+
+rule gff_to_MCScanX_gff_test:
+	input:
+		primary_list = "data/ncbi/{name}_primary/{name}_protein.list",
+		feature_table = "data/ncbi/{name}/{name}_feature_table.txt",
+		MCScanX_gff = "data/intermediateData/{name}/{name}.gff-option_one"
+	output:
+		MCScanX_gff = "data/intermediateData/{name}/{name}.gff-option_one_test"
+	log:
+		out = "log/gff_to_MCScanX_gff_test/{name}.out",
+		err = "log/gff_to_MCScanX_gff_test/{name}.err"
+	conda:
+		"envs/biopython.yaml"
+	threads:
+		1
+	resources:
+		mem = 4,
+		time = "0:10:0"
+	shell: """
+df_primary_list = pd.read_csv({input.primary_list},delimiter ='\t',header =none, names = ['protein_id'])
+df_feature_table = pd.read_csv({input.feature_table},delimiter ='\t',header =0)
+df_MCScanX_gff = pd.read_csv({input.MCScanX_gff},delimiter ='\t',header =0)
+df_merge = pd.merge(df_primary_list,df_feature_table,left_on='related_accession', right_on=,suffixes=('', ''))
+#df_merge.filter(like='mRNA',axis=0)['related_accession','locus_tag']
+df_id_pair = df_merge.loc[df_merge['# feature'] =='mRNA',:]['related_accession','locus_tag']
+df_merge2 = pd.merge(df_id_pair,df_MCScanX_gff,left_on='related_accession', right_on= 'gene_id',suffixes=('', ''))
+df_merge2.drop(columns=['locus_tag']).to_csv(output.MCScanX_gff,index=False,sep='\t')
+> {log.out} \
+2> {log.err}
+"""
+
+
 
 # MCScanX_gff option TWO
 #note:"XX_feature_table.txt" is a backup option to create MCScanX_gff
