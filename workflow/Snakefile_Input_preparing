@@ -37,7 +37,7 @@ rule all:
 		expand("data/intermediateData/{name}/{name}.gff",
 			name = config['names']),
 	
-	# Other option to yield the MCScanX gff: 
+	# Other option to yield the MCScanX gff: This will work when the feature table has locus tag well documented
 		expand("data/intermediateData/{name}/{name}.gff-option_one",
 			name = config['names']),
 		expand("data/intermediateData/{name}/{name}.gff-option_one_test",
@@ -155,6 +155,8 @@ rule generate_MCScanX_gff_inputs:
 2> {log.err}
 """
 
+#Note: This strategy will work when the feature table has locus tag well documented, otherwise try option two to yield gff
+
 # MCScanX_gff option ONE
 # Convert gff to bed for easier parsing, this is an option for other gff3 files 
 rule gff_to_MCScanX_gff:
@@ -207,27 +209,31 @@ rule gff_to_MCScanX_gff_test:
 	log:
 		out = "log/gff_to_MCScanX_gff_test/{name}.out",
 		err = "log/gff_to_MCScanX_gff_test/{name}.err"
-	conda:
-		"envs/biopython.yaml"
 	threads:
 		1
 	resources:
 		mem = 4,
 		time = "0:10:0"
-	shell: """
-df_primary_list = pd.read_csv({input.primary_list},delimiter ='\t',header =none, names = ['protein_id'])
-df_feature_table = pd.read_csv({input.feature_table},delimiter ='\t',header =0)
-df_MCScanX_gff = pd.read_csv({input.MCScanX_gff},delimiter ='\t',header =0)
-df_merge = pd.merge(df_primary_list,df_feature_table,left_on='related_accession', right_on=,suffixes=('', ''))
-#df_merge.filter(like='mRNA',axis=0)['related_accession','locus_tag']
-df_id_pair = df_merge.loc[df_merge['# feature'] =='mRNA',:]['related_accession','locus_tag']
-df_merge2 = pd.merge(df_id_pair,df_MCScanX_gff,left_on='related_accession', right_on= 'gene_id',suffixes=('', ''))
-df_merge2.drop(columns=['locus_tag']).to_csv(output.MCScanX_gff,index=False,sep='\t')
-> {log.out} \
-2> {log.err}
-"""
+	run:
+		df_primary_list = pd.read_csv(input.primary_list, delimiter ='\t',header =0, names = ['protein_id'])
+		#print(df_primary_list)
+		df_feature_table = pd.read_csv(input.feature_table, delimiter ='\t',header =0)
+		#print(df_feature_table)
+		df_MCScanX_gff = pd.read_csv(input.MCScanX_gff, delimiter ='\t',header =0, names = ['chr','gene_id','start','end'])
+		df_MCScanX_gff['gene_id'] = df_MCScanX_gff['gene_id'].apply(lambda str:str.lstrip('gene-'))
+		#print(df_MCScanX_gff)
+		df_merge = pd.merge(df_primary_list, df_feature_table, left_on='protein_id', right_on= 'related_accession',suffixes=('', ''))
+		#print(df_merge)
+		df_id_pair = df_merge.loc[df_merge['# feature'] =='mRNA',:]
+		df_id_pair = df_id_pair[['related_accession','locus_tag']]
+		#print(df_id_pair)
+		df_merge2 = pd.merge(df_id_pair, df_MCScanX_gff, left_on='locus_tag', right_on= 'gene_id',suffixes=('', ''))
+		#print(df_merge2)
+		df_merge2 = df_merge2.drop(columns=['locus_tag','gene_id'])
+		df_merge2[['chr','related_accession','start','end']].to_csv(output.MCScanX_gff,index=False,sep='\t')
+		
 
-
+#df_id_pair =df_merge.filter(like='mRNA',axis=0)[['related_accession','locus_tag']]
 
 # MCScanX_gff option TWO
 #note:"XX_feature_table.txt" is a backup option to create MCScanX_gff
@@ -431,6 +437,5 @@ rule diamond_mcscanx_blast_all_vs_all:
 > {log.out} \
 2> {log.err}	
 """
-
 
 
