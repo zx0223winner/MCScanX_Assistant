@@ -1,8 +1,7 @@
 
 <p align="center">
-  <img src="resources/MCScanX_Assistant.png" alt="Description" width="400" />
+  <img src="resources/MCScanX_Assistant.png" alt="Description" width="500" />
 </p>
-
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.readthedocs.io)
 [![run with conda ](http://img.shields.io/badge/run%20with-conda%20-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
