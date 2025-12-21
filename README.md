@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="resources/hsdsnake_logo_color.png" alt="Description" width="300" />
+  <img src="resources/MCScanX_Assistant.png" alt="Description" width="400" />
 </p>
 
 
