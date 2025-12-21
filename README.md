@@ -1,3 +1,9 @@
+
+<p align="center">
+  <img src="resources/hsdsnake_logo_color.png" alt="Description" width="300" />
+</p>
+
+
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.7.0-brightgreen.svg)](https://snakemake.readthedocs.io)
 [![run with conda ](http://img.shields.io/badge/run%20with-conda%20-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 
@@ -92,3 +98,5 @@ The code within this repository is licensed under the [MIT License](./LICENSE). 
 ## Ciation
 If you used the codes in this respository, please cite the link.
 
+### Declaration of generative AI and AI-assisted technologies 
+GitHub tool logo generation. Author reviewed and edited the content as needed and takes full responsibility for the content.
