@@ -95,7 +95,9 @@ snakemake --use-conda --cores all -s workflow/Snakefile_MCScanX_6species
 The code within this repository is licensed under the [MIT License](./LICENSE). Please refer to the license file for more information on the terms and conditions of using and contributing to this project.
 
 ## Ciation
-If you used the codes in this respository, please cite the link.
+If you feel the tool is useful, please cite:
+
+Zhang, X. et.al 2025. How to prepare the input data and run MCScanX efficiently?. bioRxiv, pp.2025-07.
 
 ### Declaration of generative AI and AI-assisted technologies 
 GitHub tool logo generation. Author reviewed and edited the content as needed and takes full responsibility for the content.
