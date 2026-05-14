@@ -1,21 +1,18 @@
-ncbi_assemblies:
-  - GCF_000001735.4
-  - GCF_000002595.2
-
-ncbi_genomes:
-    Athaliana:
-        assembly_id: "GCF_000001735.4"
-        species: Athaliana
-        
-    Creinhardtii:
-        assembly_id: "GCF_000002595.2"
-        species: Creinhardtii
-
 names:
   - Athaliana
   - Creinhardtii
 
-species_name:
-  - Athaliana
-#  - Creinhardtii
+# Warning! Make sure your species name above without '.', '_', for example don't use Arabidopisis_thalina or A.thalina or A.thalina_sp
+# if you really want to differ the strains from same speceis. Do it like Athaliana-sp1, Athaliana-sp2 etc.
+# This is because DupGeneFinder capture species name using . and _ as delimiter. I don't have an easy fix to allow more flexibility.
 
+ncbi_genomes:
+    Athaliana:
+        assembly: "XX/XX.fasta"
+        gff: "XX/XX.gff"
+        species: Athaliana
+
+    Creinhardtii:
+        assembly:  "XX/XX.fasta"
+        gff: "XX/XX.gff"
+        species: Creinhardtii
