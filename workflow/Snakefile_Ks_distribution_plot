@@ -29,8 +29,7 @@ rule all:
 			species_name = config['species_name']),
 		expand("data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.distri.pdf",
 			species_name = config['species_name']),
-		expand("data/mcscanx/{species_name}_kaks/{species_name}.synteny.density.ks.distri.pdf",
-			species_name = config['species_name'])	
+
 
 
 #TIP: Run the mcscanx
@@ -205,26 +204,3 @@ rule Estimating_Ks_peaks:
 """
 
 
-rule Ks_density_plot:
-	input:
-		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.blocks.ks.info"
-	output:
-		"data/mcscanx/{species_name}_kaks/{species_name}.synteny.density.ks.distri.pdf"
-	threads:
-		1
-	resources:
-		mem = 2
-	conda:
-		"envs/biopython.yaml"
-	params:
-		dir1 = "scripts",
-		dir2 = "data/mcscanx/{species_name}_kaks",
-		species_name = "{species_name}"
-	log: 
-		out = "log/Ks_density_plot/{species_name}.out",
-		err = "log/Ks_density_plot/{species_name}.err"
-	shell:"""
-	python {params.dir1}/plot_density_ks_distri.py {input} {params.dir2}/{params.species_name}.synteny.density.ks.distri.pdf {params.species_name}\
-> {log.out} \
-2> {log.err}
-"""
