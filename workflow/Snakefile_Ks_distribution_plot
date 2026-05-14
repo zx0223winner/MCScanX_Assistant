@@ -38,7 +38,7 @@ rule all:
 
 rule mcscanx:
 	input:
-		gff = "data/intermediateData/{species_name}/{species_name}.gff",
+		gff = "resources/{species_name}/{species_name}.primary.gff",
 		blast = "data/intermediateData/{species_name}/{species_name}.blast",
 		cds = "data/intermediateData/{species_name}/{species_name}.cds"
 	output:
