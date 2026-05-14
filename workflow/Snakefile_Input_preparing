@@ -19,6 +19,8 @@ rule all:
 			name = config['names']),
 		expand("resources/{name}/{name}.primary.fa",
 			name = config['names']),
+		expand("data/intermediateData/{name}/{name}.gff",
+			name = config['names']),		
 		expand("data/ncbi/{name}_primary/{name}_protein.faa",
 			name = config['names']),
 		expand("data/intermediateData/{name}/{name}.cds",
