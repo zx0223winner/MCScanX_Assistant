@@ -35,6 +35,12 @@ rule all:
 
 #TIP: Run the mcscanx
 #If mcscanx has no results, Solution is to put .blast and .gff file inside MCScanX folder without creating a separate folder, the following rules can do this.
+# if Athaliana.collinearity is empty info except the header, make sure check the folder scripts/MCScanX/Athaliana, if the below files using same gene ID
+#Athaliana.blast
+#Athaliana.cds
+#Athaliana.gff
+
+# Athaliana.collinearity
 
 rule mcscanx:
 	input:
