@@ -59,10 +59,9 @@ rule mcscanx:
 		out = "log/mcscanx/{species_name}.out",
 		err = "log/mcscanx/{species_name}.err"
 	shell:"""
-export PATH=$PATH:{params.dir2}; \
-chmod +x {params.dir2}/MCScanX; \
+	shell:"""
 cp -r {params.dir} {params.dir2}; \
-./{params.dir2}/MCScanX {params.dir1}/{params.dir_name} \
+MCScanX {params.dir1}/{params.dir_name} \
 > {log.out} \
 2> {log.err}
 """
