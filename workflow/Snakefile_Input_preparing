@@ -38,7 +38,7 @@ rule all:
 rule agat_gff_keep_longest_iso:
 	input:
 		fasta = lambda wc: config['ncbi_genomes'][wc.name]['assembly'],
-		gff = "resources/{name}/{name}.gff"
+		gff = lambda wc: config['ncbi_genomes'][wc.name]['gff']
 	output:
 		"resources/{name}/{name}.primary.gff"
 	log:
