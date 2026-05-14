@@ -196,33 +196,6 @@ rule diamond_db_mcscanx:
 2> {log.err}
 """
 
-rule diamond_db_mcscanx:
-	input:
-		"data/ncbi/{name}_primary/{name}_protein.faa"
-	output:
-		"data/ncbiDB/{name}.dmnd"
-	threads:
-		1
-	resources:
-		mem = 2
-	params:
-		dir1 = "data/ncbiDB",
-		db_name_dir = "data/ncbiDB/{name}",
-		protein = "data/ncbi/{name}_primary/{name}_protein.faa"
-	conda: 
-		"envs/diamond.yaml"
-	log: 
-		out = "log/diamond_db_mcscanx/{name}.out",
-		err = "log/diamond_db_mcscanx/{name}.err"
-	shell:"""
-	sleep 10s; \
-	mkdir -p {params.dir1}; \
-	diamond makedb \
-		--in {params.protein} \
-		-d {params.db_name_dir} \
-> {log.out} \
-2> {log.err}
-"""
 
 # note: --max-target-seqs parameter will impact how many candidate duplicates will be detected, here is consistent with the Wang et.al. Nature protocol. 2024
 rule diamond_mcscanx:
