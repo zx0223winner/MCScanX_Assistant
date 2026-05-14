@@ -16,3 +16,7 @@ ncbi_genomes:
         assembly:  "XX/XX.fasta"
         gff: "XX/XX.gff"
         species: Creinhardtii
+
+species_name:
+    - Athaliana
+#    - Creinhardtii
