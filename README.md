@@ -98,6 +98,7 @@ The code within this repository is licensed under the [MIT License](./LICENSE). 
 If you feel the tool is useful, please cite:
 
 Zhang, X. et.al 2025. How to prepare the input data and run MCScanX efficiently?. bioRxiv, pp.2025-07.
+Zhang, X. et.al 2026. Addendum: Detection of colinear blocks and synteny and evolutionary analyses based on utilization of MCScanX.Nat Protoc 21, https://doi.org/10.1038/s41596-026-01380-8
 
 ### Declaration of generative AI and AI-assisted technologies 
 GitHub tool logo generation. Author reviewed and edited the content as needed and takes full responsibility for the content.
