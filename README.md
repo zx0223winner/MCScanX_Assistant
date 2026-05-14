@@ -8,6 +8,10 @@
 
 
 
+> [!NOTE]
+> There is a different MCScanX_Assistant version (under testing) in [developement branch](https://github.com/zx0223winner/MCScanX_Assistant/tree/development) targting for customized non-model species, such as those annotated via Augustus not just for NCBI genomes.
+
+
 # MCScanX_Assistant
 
 ## Overview
