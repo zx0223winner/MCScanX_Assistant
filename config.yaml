@@ -17,6 +17,11 @@ ncbi_genomes:
         gff: "XX/XX.gff"
         species: Creinhardtii
 
+# note here species_name is used by the snakemake file : Snakefile_Ks_distribution_plot, which is targeting for MCScanX run within one geneome, e,g., intra-species
 species_name:
     - Athaliana
 #    - Creinhardtii
+
+# note here species_name is used by the snakemake file : Snakefile_MCScanX_6species, which is targeting for MCScanX run across many geneomes, e,g., inter-species
+ks_test_name: 
+  - "6species"
